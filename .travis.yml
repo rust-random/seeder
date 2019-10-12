@@ -67,5 +67,4 @@ script:
 after_script: set +e
 
 notifications:
-  email:
-    on_success: never
+  email: false
