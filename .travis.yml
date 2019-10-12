@@ -1,0 +1,68 @@
+language: rust
+sudo: false
+
+matrix:
+  include:
+    - rust: 1.22.0
+      name: "Linux, 1.22.0, minimal versions"
+      env: ALLOC=0
+      os: linux
+      script:
+        - cargo generate-lockfile -Z minimal-versions
+        - cargo test
+
+    - rust: stable
+      name: "Linux, stable"
+
+    - rust: beta
+      name: "Linux, beta"
+
+    - rust: nightly
+      os: linux
+      name: "Linux, nightly, 32- & 64-bit"
+      env: TARGET32=mips-unknown-linux-gnu
+      install:
+        - rustup target add $TARGET32
+      script:
+        - cargo test --benches --examples
+        - cargo test --target $TARGET32 --benches --examples
+
+    # This target catches endianness issues
+    - rust: stable
+      sudo: required
+      dist: trusty
+      services: docker
+      name: "Linux (MIPS, big-endian)"
+      env: TARGET=mips-unknown-linux-gnu
+      install:
+        - sh utils/ci/install.sh
+        - source ~/.cargo/env || true
+      script:
+        - cross test --target $TARGET
+
+    # This target checks we really can build no_std binaries
+    - rust: nightly
+      name: "no_std platform test"
+      install:
+        - rustup target add thumbv6m-none-eabi
+      script:
+        # Test the top-level crate with all features:
+        - cargo build --target=thumbv6m-none-eabi
+
+    - rust: nightly
+      os: linux
+      name: "Miri, nightly"
+      script:
+        - sh utils/ci/miri.sh
+
+before_install:
+  - set -e
+
+script:
+  - cargo test
+
+after_script: set +e
+
+notifications:
+  email:
+    on_success: never
