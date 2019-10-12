@@ -1,14 +1,12 @@
 language: rust
 sudo: false
+os: linux
 
 matrix:
   include:
     - rust: 1.22.0
-      name: "Linux, 1.22.0, minimal versions"
-      env: ALLOC=0
-      os: linux
+      name: "Linux, 1.22.0"
       script:
-        - cargo generate-lockfile -Z minimal-versions
         - cargo test
 
     - rust: stable
@@ -18,7 +16,6 @@ matrix:
       name: "Linux, beta"
 
     - rust: nightly
-      os: linux
       name: "Linux, nightly, 32- & 64-bit"
       env: TARGET32=mips-unknown-linux-gnu
       install:
@@ -50,10 +47,15 @@ matrix:
         - cargo build --target=thumbv6m-none-eabi
 
     - rust: nightly
-      os: linux
       name: "Miri, nightly"
       script:
         - sh utils/ci/miri.sh
+
+    - rust: nightly
+      name: "Linux, minimal versions"
+      script:
+        - cargo generate-lockfile -Z minimal-versions
+        - cargo test --benches --examples
 
 before_install:
   - set -e
