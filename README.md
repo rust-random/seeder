@@ -1,46 +1,48 @@
 # rand_seeder
 
-[![Build Status](https://travis-ci.org/rust-lang-nursery/rand.svg)](https://travis-ci.org/rust-lang-nursery/rand)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/rust-lang-nursery/rand?svg=true)](https://ci.appveyor.com/project/dhardy/rand)
+[![Build Status](https://travis-ci.org/rust-lang-nursery/seeder.svg)](https://travis-ci.org/rust-lang-nursery/seeder)
 [![Latest version](https://img.shields.io/crates/v/rand_seeder.svg)](https://crates.io/crates/rand_seeder)
 [![Documentation](https://docs.rs/rand_seeder/badge.svg)](https://docs.rs/rand_seeder)
 [![Minimum rustc version](https://img.shields.io/badge/rustc-1.22+-yellow.svg)](https://github.com/rust-lang-nursery/rand#rust-version-requirements)
 [![License](https://img.shields.io/crates/l/rand_seeder.svg)](https://github.com/rust-lang-nursery/rand/tree/master/rand_seeder#license)
 
-A universal seeder based on [`SipHash`](https://131002.net/siphash/).
+A universal seeder based on [SipHash].
 
-This crate provides three things:
+This crate is designed for use with the [rand] crates, allowing any RNG
+supporting [`rand_core::SeedableRng`] to be seeded from any hashable value.
+It provides the following:
 
--   a portable implementation of SipHash-2-4, `SipHasher`
--   `SipRng`, based around the `SipHash` state and mixing operations
--   `Seeder`, a convenience wrapper
+-   `SipHasher` is a portable implementation of SipHash-2-4. According to the
+    authors, [SipHash] is a secure, fast and simple keyed hash function.
+-   `SipRng` is a PRNG based on the `SipHash` state and mixing operations.
+    It is statistically high-quality, passing practrand tests to at least 4 TiB.
+-   `SipHasher::make_rng()` converts a `SipHasher` into a `SipRng`, maintaining
+    the full 256 bits of state. (This might break the hasher's security.)
+-   `Seeder` is a convenience wrapper around the above (see example).
 
-`Seeder` can be used to seed any `SeedableRng` from any hashable value. It is
-portable and reproducible, and should turn any input into a good RNG seed.
-It is intended for use in simulations and games where reproducibility is
-important.
+Seeding is designed to be fast, robust, flexible and portable. This library is
+intended for use in simulations and games, allowing e.g. any keyword to
+reproduce a simulation or procedurally generated world.
 
-We do not recommend using `Seeder` for cryptographic applications and
-strongly advise against usage for authentication (password hashing).
+This library is not intended for cryptographic applications, and *definitely*
+not for password hashing.
 
 Example:
 
 ```rust
 use rand_core::RngCore;         // for next_u32
-use rand::prng::XorShiftRng;    // or whatever you like
+use rand_pcg::Pcg64;            // or whatever you like
 use rand_seeder::Seeder;
 
-let mut rng: XorShiftRng = Seeder::from("stripy zebra").make_rng();
+let mut rng: Pcg64 = Seeder::from("stripy zebra").make_rng();
 println!("First value: {}", rng.next_u32());
 ```
 
-Documentation:
-[master branch](https://rust-lang-nursery.github.io/rand/rand_seeder/index.html),
-[by release](https://docs.rs/rand_seeder)
-
 [Changelog](CHANGELOG.md)
 
-[rand]: https://crates.io/crates/rand
+[SipHash](https://131002.net/siphash/).
+[rand]: https://github.com/rust-random/rand
+[`rand_core::SeedableRng`]: https://rust-random.github.io/rand/rand_core/trait.SeedableRng.html
 
 
 # License
