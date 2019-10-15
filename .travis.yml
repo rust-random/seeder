@@ -16,13 +16,17 @@ matrix:
       name: "Linux, beta"
 
     - rust: nightly
-      name: "Linux, nightly, 32- & 64-bit"
-      env: TARGET32=i686-unknown-linux-gnu
-      install:
-        - rustup target add $TARGET32
+      name: "Linux, nightly, 64-bit"
       script:
         - cargo test --benches --examples
-        - cargo test --target $TARGET32 --benches --examples
+
+    - rust: nightly
+      name: "Linux, nightly, 32-bit"
+      env: TARGET=i686-unknown-linux-musl
+      install:
+        - rustup target add $TARGET
+      script:
+        - cargo test --target $TARGET --benches --examples
 
     # This target catches endianness issues
     - rust: stable
