@@ -1,0 +1,78 @@
+$ cargo run --example seedrng a -s | practrand stdin64
+    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
+     Running `target/debug/examples/seedrng a -s`
+RNG_test using PractRand version 0.93
+RNG = RNG_stdin64, seed = 0x1c863418
+test set = normal, folding = standard (64 bit)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 64 megabytes (2^26 bytes), time= 2.2 seconds
+  no anomalies in 137 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 128 megabytes (2^27 bytes), time= 4.8 seconds
+  no anomalies in 148 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 256 megabytes (2^28 bytes), time= 9.6 seconds
+  Test Name                         Raw       Processed     Evaluation
+  DC6-9x1Bytes-1                    R=  -4.1  p =1-5.2e-3   unusual          
+  ...and 158 test result(s) without anomalies
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 512 megabytes (2^29 bytes), time= 18.7 seconds
+  no anomalies in 169 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 1 gigabyte (2^30 bytes), time= 36.5 seconds
+  no anomalies in 180 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 2 gigabytes (2^31 bytes), time= 73.7 seconds
+  no anomalies in 191 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 4 gigabytes (2^32 bytes), time= 152 seconds
+  no anomalies in 201 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 8 gigabytes (2^33 bytes), time= 306 seconds
+  no anomalies in 212 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 16 gigabytes (2^34 bytes), time= 611 seconds
+  no anomalies in 223 test result(s)
+
+^Erng=RNG_stdin64, seed=0x1c863418
+length= 32 gigabytes (2^35 bytes), time= 1226 seconds
+  no anomalies in 233 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 64 gigabytes (2^36 bytes), time= 2405 seconds
+  no anomalies in 244 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 128 gigabytes (2^37 bytes), time= 4643 seconds
+  no anomalies in 255 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 256 gigabytes (2^38 bytes), time= 9013 seconds
+  no anomalies in 265 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 512 gigabytes (2^39 bytes), time= 17788 seconds
+  Test Name                         Raw       Processed     Evaluation
+  [Low4/64]FPF-14+6/16:(1,14-0)     R=  -6.3  p =1-1.7e-5   unusual          
+  ...and 275 test result(s) without anomalies
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 1 terabyte (2^40 bytes), time= 35308 seconds
+  no anomalies in 287 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 2 terabytes (2^41 bytes), time= 70681 seconds
+  no anomalies in 297 test result(s)
+
+rng=RNG_stdin64, seed=0x1c863418
+length= 4 terabytes (2^42 bytes), time= 142581 seconds
+  no anomalies in 308 test result(s)
