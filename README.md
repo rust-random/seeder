@@ -1,10 +1,10 @@
 # rand_seeder
 
-[![Build Status](https://travis-ci.org/rust-lang-nursery/seeder.svg)](https://travis-ci.org/rust-lang-nursery/seeder)
+[![Build Status](https://travis-ci.org/rust-random/seeder.svg)](https://travis-ci.org/rust-random/seeder)
 [![Latest version](https://img.shields.io/crates/v/rand_seeder.svg)](https://crates.io/crates/rand_seeder)
 [![Documentation](https://docs.rs/rand_seeder/badge.svg)](https://docs.rs/rand_seeder)
-[![Minimum rustc version](https://img.shields.io/badge/rustc-1.32+-yellow.svg)](https://github.com/rust-lang-nursery/rand#rust-version-requirements)
-[![License](https://img.shields.io/crates/l/rand_seeder.svg)](https://github.com/rust-lang-nursery/rand/tree/master/rand_seeder#license)
+[![Minimum rustc version](https://img.shields.io/badge/rustc-1.32+-yellow.svg)](https://github.com/rust-random/rand#rust-version-requirements)
+[![License](https://img.shields.io/crates/l/rand_seeder.svg)](https://github.com/rust-random/rand/tree/master/rand_seeder#license)
 
 A universal seeder based on [SipHash].
 
