@@ -4,10 +4,9 @@ os: linux
 
 matrix:
   include:
-    - rust: 1.22.0
-      name: "Linux, 1.22.0"
+    - rust: 1.32.0
+      name: "Linux, 1.32.0"
       script:
-        - cargo update -p rand_core --precise 0.4.2
         - cargo test
 
     - rust: stable
@@ -18,7 +17,7 @@ matrix:
 
     - rust: nightly
       name: "Linux, nightly, 32- & 64-bit"
-      env: TARGET32=i686-unknown-linux-musl
+      env: TARGET32=i686-unknown-linux-gnu
       install:
         - rustup target add $TARGET32
       script:
