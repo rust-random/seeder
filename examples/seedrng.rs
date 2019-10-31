@@ -48,7 +48,7 @@ fn main() {
         }
     }
     
-    let mut rng = hasher.make_rng();
+    let mut rng = hasher.into_rng();
     match output {
         Output::Single => {
             println!("{}", rng.next_u64());
