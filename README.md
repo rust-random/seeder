@@ -16,7 +16,7 @@ It provides the following:
     authors, [SipHash] is a secure, fast and simple keyed hash function.
 -   `SipRng` is a PRNG based on the `SipHash` state and mixing operations.
     It is statistically high-quality, passing practrand tests to at least 4 TiB.
--   `SipHasher::make_rng()` converts a `SipHasher` into a `SipRng`, maintaining
+-   `SipHasher::into_rng()` transitions a `SipHasher` into a `SipRng`, maintaining
     the full 256 bits of state. (This might break the hasher's security.)
 -   `Seeder` is a convenience wrapper around the above (see example).
 
@@ -40,7 +40,7 @@ println!("First value: {}", rng.next_u32());
 
 [Changelog](CHANGELOG.md)
 
-[SipHash](https://131002.net/siphash/).
+[SipHash]: https://131002.net/siphash/
 [rand]: https://github.com/rust-random/rand
 [`rand_core::SeedableRng`]: https://rust-random.github.io/rand/rand_core/trait.SeedableRng.html
 

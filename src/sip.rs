@@ -23,30 +23,35 @@ use rand_core::{RngCore, SeedableRng, Error, le, impls};
 /// 
 /// This implementation will produce 8-byte (`u64`) output compliant with the
 /// reference implementation. Additionally, it can be extended into an RNG able
-/// to produce unlimited output, `SipRng`.
+/// to produce unlimited output via [`SipHasher::into_rng`].
 ///
 /// See: <https://131002.net/siphash/>
 ///
 /// SipHash is a general-purpose hashing function: it runs at a good
-/// speed (competitive with Spooky and City) and permits strong _keyed_
-/// hashing. This lets you key your hashtables from a strong RNG, such as
-/// [`rand::os::OsRng`](https://doc.rust-lang.org/rand/rand/os/struct.OsRng.html).
+/// speed (competitive with Spooky and City) and permits strong keyed hashing.
 ///
-/// Although the SipHash algorithm is considered to be generally strong,
-/// it is not intended for cryptographic purposes. As such, all
-/// cryptographic uses of this implementation are _strongly discouraged_.
+/// Although the SipHash algorithm is considered strong, it is not intended for
+/// cryptographic uses (e.g. authentication).
 #[derive(Debug, Clone, Default)]
 pub struct SipHasher {
     hasher: Hasher<Sip24Rounds>,
 }
 
-/// An RNG based around a SipHash core.
-/// 
-/// This implementation is fixed to use two rounds between output values
-/// (similar to how SipHash uses 2 between input values). The construction
-/// from a `SipHasher` adds two extra rounds so that there are still four
-/// rounds between final input consumption and first output production.
-/// The first result is however not equivalent.
+/// A generator built using SipHash's primitives.
+///
+/// [`SipRng`] is statistically high-quality, passing practrand tests to at
+/// least 4 TiB. It is also reasonably fast, though not quite competitive with
+/// the best non-cryptographic RNGs or optimised block RNGs such as ChaCha.
+///
+/// This implementation is fixed to use two "compression" rounds between output
+/// values (similar to SipHash 2-4). Construction via [`SipHasher::into_rng`]
+/// adds two extra rounds to maintain four rounds between final input
+/// consumption and the first output, however this first result is not identical
+/// to SipHash's result.
+///
+/// Although this generator is heavily based on the design of SipHash, it has
+/// not been reviewed for cryptographic strength, and thus cannot be recommended
+/// for applications requiring this property.
 #[derive(Debug, Clone)]
 pub struct SipRng {
     state: State,
@@ -134,23 +139,29 @@ unsafe fn u8to64_le(buf: &[u8], start: usize, len: usize) -> u64 {
 }
 
 impl SipHasher {
-    /// Creates a new `SipHasher` with the two initial keys set to 0.
+    /// Create a new `SipHasher` (equivalent to `from_keys(0, 0)`).
     #[inline]
     pub fn new() -> Self {
-        SipHasher::new_with_keys(0, 0)
+        SipHasher::from_keys(0, 0)
     }
 
-    /// Creates a `SipHasher` that is keyed off the provided keys.
+    /// Create a `SipHasher` using the given keys.
     #[inline]
-    pub fn new_with_keys(key0: u64, key1: u64) -> Self {
+    pub fn from_keys(key0: u64, key1: u64) -> Self {
         SipHasher {
-            hasher: Hasher::new_with_keys(key0, key1)
+            hasher: Hasher::from_keys(key0, key1)
         }
     }
     
-    /// Finish writes and convert the core into an RNG
-    pub fn make_rng(self) -> SipRng {
-        self.hasher.make_rng()
+    /// Finish writes and convert the hasher's core into a generator.
+    ///
+    /// This offers a fast, elegant transition from hash function to generator
+    /// which maintains (up to) 256 bits of entropy.
+    ///
+    /// Note that this transition has not been reviewed for cryptographic
+    /// strength, and might break SipHash's security.
+    pub fn into_rng(self) -> SipRng {
+        self.hasher.into_rng()
     }
 }
 
@@ -205,7 +216,7 @@ impl SeedableRng for SipRng {
 
 impl<S: Sip> Hasher<S> {
     #[inline]
-    fn new_with_keys(key0: u64, key1: u64) -> Hasher<S> {
+    fn from_keys(key0: u64, key1: u64) -> Hasher<S> {
         let mut state = Hasher {
             k0: key0,
             k1: key1,
@@ -265,8 +276,7 @@ impl<S: Sip> Hasher<S> {
         self.tail = unsafe { u8to64_le(msg, needed, self.ntail) };
     }
 
-    /// Finish writes and convert the core into an RNG
-    pub fn make_rng(self) -> SipRng {
+    fn into_rng(self) -> SipRng {
         let mut state = self.state;
 
         // Finish
@@ -455,7 +465,7 @@ impl<S: Sip> Default for Hasher<S> {
     /// Creates a `Hasher<S>` with the two initial keys set to 0.
     #[inline]
     fn default() -> Hasher<S> {
-        Hasher::new_with_keys(0, 0)
+        Hasher::from_keys(0, 0)
     }
 }
 
@@ -505,7 +515,7 @@ mod test {
                      (63, 0x958a324ceb064572)];
         
         for (len, val) in &tests {
-            let mut hasher = SipHasher::new_with_keys(k0, k1);
+            let mut hasher = SipHasher::from_keys(k0, k1);
             hasher.write(&msg[0..*len]);
             assert_eq!(hasher.finish(), *val, "mismatch with reference vector for i={}", *len);
         }
