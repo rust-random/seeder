@@ -34,7 +34,7 @@
 
 #![doc(html_logo_url = "https://www.rust-lang.org/logos/rust-logo-128x128-blk.png",
        html_favicon_url = "https://www.rust-lang.org/favicon.ico",
-       html_root_url = "https://docs.rs/rand_seeder/0.2.0")]
+       html_root_url = "https://docs.rs/rand_seeder/0.2.1")]
 
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
@@ -89,10 +89,20 @@ impl Seeder {
     ///
     /// Alternatively, one can obtain a [`SipRng`] via
     /// `SipHasher::from(h).into_rng()`.
+    #[inline]
     pub fn make_rng<R: SeedableRng>(&mut self) -> R {
-        let mut seed = R::Seed::default();
+        R::from_seed(self.make_seed())
+    }
+
+    /// Make a seed
+    ///
+    /// This mutates the state internally, thus can be called multiple times to
+    /// generate multiple independent seeds.
+    #[inline]
+    pub fn make_seed<S: AsMut<[u8]> + Default>(&mut self) -> S {
+        let mut seed = S::default();
         self.rng.fill_bytes(seed.as_mut());
-        R::from_seed(seed)
+        seed
     }
 }
 
