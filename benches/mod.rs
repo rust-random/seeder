@@ -8,8 +8,8 @@
 
 #![feature(test)]
 
-extern crate test;
 extern crate rand_seeder;
+extern crate test;
 
 const RAND_BENCH_N: u64 = 1000;
 const BYTES_LEN: usize = 1024;
@@ -47,8 +47,18 @@ macro_rules! gen_uint {
             });
             b.bytes = size_of::<$ty>() as u64 * RAND_BENCH_N;
         }
-    }
+    };
 }
 
-gen_uint!(gen_u32_siprng, u32, next_u32, Seeder::from("siprng").make_rng());
-gen_uint!(gen_u64_siprng, u64, next_u64, Seeder::from("siprng").make_rng());
+gen_uint!(
+    gen_u32_siprng,
+    u32,
+    next_u32,
+    Seeder::from("siprng").make_rng()
+);
+gen_uint!(
+    gen_u64_siprng,
+    u64,
+    next_u64,
+    Seeder::from("siprng").make_rng()
+);

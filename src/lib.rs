@@ -13,7 +13,7 @@
 //! This crate is designed for use with the [rand] crates, allowing any RNG
 //! supporting [`SeedableRng`] to be seeded from any hashable value.
 //! It provides the following:
-//! 
+//!
 //! -   [`SipHasher`], a portable implementation of the SipHash 2-4 hash function.
 //!     According to the authors, [SipHash] is a secure, fast and simple keyed
 //!     hash function.
@@ -32,14 +32,14 @@
 //! [SipHash]: https://131002.net/siphash/
 //! [`SeedableRng`]: rand_core::SeedableRng
 
-#![doc(html_logo_url = "https://www.rust-lang.org/logos/rust-logo-128x128-blk.png",
-       html_favicon_url = "https://www.rust-lang.org/favicon.ico",
-       html_root_url = "https://docs.rs/rand_seeder/0.2.2")]
-
+#![doc(
+    html_logo_url = "https://www.rust-lang.org/logos/rust-logo-128x128-blk.png",
+    html_favicon_url = "https://www.rust-lang.org/favicon.ico",
+    html_root_url = "https://docs.rs/rand_seeder/0.2.3"
+)]
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 #![doc(test(attr(allow(unused_variables), deny(warnings))))]
-
 #![no_std]
 
 pub extern crate rand_core;
@@ -52,23 +52,23 @@ use core::hash::Hash;
 use rand_core::{RngCore, SeedableRng};
 
 /// A universal seeder.
-/// 
+///
 /// `Seeder` can be used to seed any [`SeedableRng`] from any hashable value. It
 /// is portable and reproducible, and should turn any input into a good RNG
 /// seed. It is intended for use in simulations and games where reproducibility
 /// is important.
-/// 
+///
 /// We do not recommend using `Seeder` for cryptographic applications and
 /// strongly advise against usage for authentication (password hashing).
-/// 
+///
 /// Example:
-/// 
+///
 /// ```rust
 /// # extern crate rand_core;
 /// # extern crate rand_seeder;
 /// use rand_core::RngCore;
 /// use rand_seeder::{Seeder, SipRng};
-/// 
+///
 /// // Use any SeedableRng you like in place of SipRng:
 /// let mut rng: SipRng = Seeder::from("stripy zebra").make_rng();
 /// println!("First value: {}", rng.next_u32());
@@ -111,7 +111,7 @@ impl<H: Hash> From<H> for Seeder {
     fn from(h: H) -> Seeder {
         let hasher = SipHasher::from(h);
         Seeder {
-            rng: hasher.into_rng()
+            rng: hasher.into_rng(),
         }
     }
 }
@@ -119,14 +119,14 @@ impl<H: Hash> From<H> for Seeder {
 #[cfg(test)]
 mod test {
     use super::*;
-    
+
     #[test]
     fn make_seeder() {
         let _ = Seeder::from(0u64);
         let _ = Seeder::from("a static string");
         let _ = Seeder::from([1u8, 2, 3]);
     }
-    
+
     #[test]
     fn make_rng() {
         let mut seeder = Seeder::from("test string");

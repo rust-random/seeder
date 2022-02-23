@@ -1,6 +1,6 @@
 [package]
 name = "rand_seeder"
-version = "0.2.2" # NB: When modifying, also modify html_root_url in lib.rs
+version = "0.2.3" # NB: When modifying, also modify html_root_url in lib.rs
 authors = ["The Rand Project Developers"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
