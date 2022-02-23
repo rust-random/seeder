@@ -9,18 +9,18 @@
 // except according to those terms.
 
 //! An implementation of SipHash.
-//! 
+//!
 //! Shamelessly stolen from the Rust std lib (libcore/hash/sip.rs) and adapted.
-//! 
+//!
 //! Only the official variant, SipHash 2-4, is included. Other variants such
 //! as the reduced 1-3 (used by libstd's `DefaultHasher`) could be added easily.
 
 use core::marker::PhantomData;
 use core::{cmp, hash, mem, ptr, slice};
-use rand_core::{RngCore, SeedableRng, Error, le, impls};
+use rand_core::{impls, le, Error, RngCore, SeedableRng};
 
 /// A portable implementation of SipHash 2-4.
-/// 
+///
 /// This implementation will produce 8-byte (`u64`) output compliant with the
 /// reference implementation. Additionally, it can be extended into an RNG able
 /// to produce unlimited output via [`SipHasher::into_rng`].
@@ -63,9 +63,9 @@ struct Hasher<S: Sip> {
     k0: u64,
     k1: u64,
     length: usize, // how many bytes we've processed
-    state: State, // hash State
-    tail: u64, // unprocessed bytes le
-    ntail: usize, // how many bytes in tail are valid
+    state: State,  // hash State
+    tail: u64,     // unprocessed bytes le
+    ntail: usize,  // how many bytes in tail are valid
     _marker: PhantomData<S>,
 }
 
@@ -83,18 +83,25 @@ struct State {
 }
 
 macro_rules! compress {
-    ($state:expr) => ({
+    ($state:expr) => {{
         compress!($state.v0, $state.v1, $state.v2, $state.v3)
-    });
-    ($v0:expr, $v1:expr, $v2:expr, $v3:expr) =>
-    ({
-        $v0 = $v0.wrapping_add($v1); $v1 = $v1.rotate_left(13); $v1 ^= $v0;
+    }};
+    ($v0:expr, $v1:expr, $v2:expr, $v3:expr) => {{
+        $v0 = $v0.wrapping_add($v1);
+        $v1 = $v1.rotate_left(13);
+        $v1 ^= $v0;
         $v0 = $v0.rotate_left(32);
-        $v2 = $v2.wrapping_add($v3); $v3 = $v3.rotate_left(16); $v3 ^= $v2;
-        $v0 = $v0.wrapping_add($v3); $v3 = $v3.rotate_left(21); $v3 ^= $v0;
-        $v2 = $v2.wrapping_add($v1); $v1 = $v1.rotate_left(17); $v1 ^= $v2;
+        $v2 = $v2.wrapping_add($v3);
+        $v3 = $v3.rotate_left(16);
+        $v3 ^= $v2;
+        $v0 = $v0.wrapping_add($v3);
+        $v3 = $v3.rotate_left(21);
+        $v3 ^= $v0;
+        $v2 = $v2.wrapping_add($v1);
+        $v1 = $v1.rotate_left(17);
+        $v1 ^= $v2;
         $v2 = $v2.rotate_left(32);
-    });
+    }};
 }
 
 /// Loads an integer of the desired type from a byte stream, in LE order. Uses
@@ -103,15 +110,16 @@ macro_rules! compress {
 ///
 /// Unsafe because: unchecked indexing at i..i+size_of(int_ty)
 macro_rules! load_int_le {
-    ($buf:expr, $i:expr, $int_ty:ident) =>
-    ({
-       debug_assert!($i + mem::size_of::<$int_ty>() <= $buf.len());
-       let mut data = 0 as $int_ty;
-       ptr::copy_nonoverlapping($buf.get_unchecked($i),
-                                &mut data as *mut _ as *mut u8,
-                                mem::size_of::<$int_ty>());
-       data.to_le()
-    });
+    ($buf:expr, $i:expr, $int_ty:ident) => {{
+        debug_assert!($i + mem::size_of::<$int_ty>() <= $buf.len());
+        let mut data = 0 as $int_ty;
+        ptr::copy_nonoverlapping(
+            $buf.get_unchecked($i),
+            &mut data as *mut _ as *mut u8,
+            mem::size_of::<$int_ty>(),
+        );
+        data.to_le()
+    }};
 }
 
 /// Loads an u64 using up to 7 bytes of a byte slice.
@@ -149,10 +157,10 @@ impl SipHasher {
     #[inline]
     pub fn from_keys(key0: u64, key1: u64) -> Self {
         SipHasher {
-            hasher: Hasher::from_keys(key0, key1)
+            hasher: Hasher::from_keys(key0, key1),
         }
     }
-    
+
     /// Finish writes and convert the hasher's core into a generator.
     ///
     /// This offers a fast, elegant transition from hash function to generator
@@ -168,10 +176,7 @@ impl SipHasher {
 impl SipRng {
     // private constructor
     fn from_state(state: State) -> SipRng {
-        SipRng {
-            state,
-            adj: 0x13,
-        }
+        SipRng { state, adj: 0x13 }
     }
 }
 
@@ -180,20 +185,20 @@ impl RngCore for SipRng {
         // Lazy way to implement. Good enough for seeding RNGs.
         self.next_u64() as u32
     }
-    
+
     fn next_u64(&mut self) -> u64 {
         self.state.v2 ^= self.adj;
         self.adj = self.adj.wrapping_sub(0x11);
-        
+
         Sip24Rounds::c_rounds(&mut self.state);
-        
+
         self.state.v0 ^ self.state.v1 ^ self.state.v2 ^ self.state.v3
     }
-    
+
     fn fill_bytes(&mut self, dest: &mut [u8]) {
         impls::fill_bytes_via_next(self, dest)
     }
-    
+
     fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), Error> {
         Ok(self.fill_bytes(dest))
     }
@@ -201,7 +206,7 @@ impl RngCore for SipRng {
 
 impl SeedableRng for SipRng {
     type Seed = [u8; 32];
-    
+
     fn from_seed(seed: Self::Seed) -> Self {
         let mut keys = [0u64; 4];
         le::read_u64_into(&seed, &mut keys);
@@ -285,16 +290,16 @@ impl<S: Sip> Hasher<S> {
         state.v3 ^= b;
         S::c_rounds(&mut state);
         state.v0 ^= b;
-        
+
         // This is supposed to be d - c rounds (here 4 - 2 = 2)
         S::c_rounds(&mut state);
-        
+
         SipRng::from_state(state)
     }
 }
 
 /// Implements the standard library's `Hasher` trait.
-/// 
+///
 /// Note that all methods are implemented directly to fix Endianness, unlike
 /// the default implementations in the standard library.
 impl hash::Hasher for SipHasher {
@@ -302,12 +307,12 @@ impl hash::Hasher for SipHasher {
     fn finish(&self) -> u64 {
         self.hasher.finish()
     }
-    
+
     #[inline]
     fn write(&mut self, msg: &[u8]) {
         self.hasher.write(msg)
     }
-    
+
     #[inline]
     fn write_u8(&mut self, i: u8) {
         self.write(&[i])
@@ -328,13 +333,13 @@ impl hash::Hasher for SipHasher {
     fn write_u128(&mut self, i: u128) {
         self.write(&i.to_le_bytes())
     }
-    
+
     /// For portability reasons, the `usize` input is interpreted as a `u128`.
     #[inline]
     fn write_usize(&mut self, i: usize) {
         self.write_u128(i as u128);
     }
-    
+
     #[inline]
     fn write_i8(&mut self, i: i8) {
         self.write_u8(i as u8)
@@ -355,7 +360,7 @@ impl hash::Hasher for SipHasher {
     fn write_i128(&mut self, i: i128) {
         self.write(&i.to_le_bytes())
     }
-    
+
     /// For portability reasons, the `isize` input is interpreted as a `i128`.
     #[inline]
     fn write_isize(&mut self, i: isize) {
@@ -391,7 +396,7 @@ impl<S: Sip> hash::Hasher for Hasher<S> {
             self.tail |= unsafe { u8to64_le(msg, 0, cmp::min(length, needed)) } << 8 * self.ntail;
             if length < needed {
                 self.ntail += length;
-                return
+                return;
             } else {
                 self.state.v3 ^= self.tail;
                 S::c_rounds(&mut self.state);
@@ -496,67 +501,99 @@ impl Sip for Sip24Rounds {
 
 #[cfg(test)]
 mod test {
-    use core::hash::Hasher;
     use super::*;
-    
+    use core::hash::Hasher;
+
     #[test]
     fn test_hash_vectors() {
         let k_bytes = [0u8, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        let (k0, k1) = unsafe{ (load_int_le!(&k_bytes, 0, u64), load_int_le!(&k_bytes, 8, u64)) };
-        
+        let (k0, k1) = unsafe {
+            (
+                load_int_le!(&k_bytes, 0, u64),
+                load_int_le!(&k_bytes, 8, u64),
+            )
+        };
+
         let mut msg = [0u8; 64];
         for (pos, i) in msg.iter_mut().zip(0u8..64) {
             *pos = i;
         }
-        
+
         // From reference vectors, converted to u64:
-        let tests = [(0, 0x726fdb47dd0e0e31),
-                     (1, 0x74f839c593dc67fd),
-                     (63, 0x958a324ceb064572)];
-        
+        let tests = [
+            (0, 0x726fdb47dd0e0e31),
+            (1, 0x74f839c593dc67fd),
+            (63, 0x958a324ceb064572),
+        ];
+
         for (len, val) in &tests {
             let mut hasher = SipHasher::from_keys(k0, k1);
             hasher.write(&msg[0..*len]);
-            assert_eq!(hasher.finish(), *val, "mismatch with reference vector for i={}", *len);
+            assert_eq!(
+                hasher.finish(),
+                *val,
+                "mismatch with reference vector for i={}",
+                *len
+            );
         }
     }
-    
+
     #[test]
     fn test_rng_vectors() {
         // SipRng has no external reference. These vectors are defined here.
-        
+
         let mut seed = [0u8; 32];
         let mut rng = SipRng::from_seed(seed);
-        
-        let vector = [0x4c022e4ec04e602a, 0xc2c0399c269058d6,
-            0xf5c7399cde9c362c, 0x37e5b9491363680a,
-            0x9582782644903316, 0x2a9d2e160aad88d,
-            0x983958db9376e6f6, 0xdead8960b8524928,
-            0xcfa886c6642c1b2f, 0x8f8f91fcf7045f2a,
-            0x1bbda585fc387fb3, 0x242485d9cc54c688,
-            0x9be110f767d8cee, 0xd61076dfc3569ab3,
-            0x8f6092dd2692af57, 0xbdf362ab8e29260b];
+
+        let vector = [
+            0x4c022e4ec04e602a,
+            0xc2c0399c269058d6,
+            0xf5c7399cde9c362c,
+            0x37e5b9491363680a,
+            0x9582782644903316,
+            0x2a9d2e160aad88d,
+            0x983958db9376e6f6,
+            0xdead8960b8524928,
+            0xcfa886c6642c1b2f,
+            0x8f8f91fcf7045f2a,
+            0x1bbda585fc387fb3,
+            0x242485d9cc54c688,
+            0x9be110f767d8cee,
+            0xd61076dfc3569ab3,
+            0x8f6092dd2692af57,
+            0xbdf362ab8e29260b,
+        ];
         // for _ in 0..8 {
         //     println!("0x{:x}, 0x{:x},", rng.next_u64(), rng.next_u64());
         // }
         for i in 0..16 {
             assert_eq!(rng.next_u64(), vector[i]);
         }
-        
+
         // set seed to 0, 1, 2, ..., 31
         for (pos, i) in seed.iter_mut().zip(0u8..32) {
             *pos = i;
         }
         let mut rng = SipRng::from_seed(seed);
-        
-        let vector = [0x479bf2823a7a923e, 0xf04e2cbc75d554d,
-            0xd589aceb3b65f36b, 0x91f8758ab30951a,
-            0x10d2bebadd90c381, 0xb3a6345b6273b101,
-            0xd05dbd603684e153, 0xabaaa983f818f5db,
-            0x2a063ed10d464bf2, 0x1d395c4c511e9073,
-            0x43011ca87ead4d7c, 0x22acb2bfbca6a069,
-            0xdd6b8dd2abb4d8f, 0xb3bc3889e7142461,
-            0x62cbac703609d15, 0x74aec28d9fdd44bf];
+
+        let vector = [
+            0x479bf2823a7a923e,
+            0xf04e2cbc75d554d,
+            0xd589aceb3b65f36b,
+            0x91f8758ab30951a,
+            0x10d2bebadd90c381,
+            0xb3a6345b6273b101,
+            0xd05dbd603684e153,
+            0xabaaa983f818f5db,
+            0x2a063ed10d464bf2,
+            0x1d395c4c511e9073,
+            0x43011ca87ead4d7c,
+            0x22acb2bfbca6a069,
+            0xdd6b8dd2abb4d8f,
+            0xb3bc3889e7142461,
+            0x62cbac703609d15,
+            0x74aec28d9fdd44bf,
+        ];
         for i in 0..16 {
             assert_eq!(rng.next_u64(), vector[i]);
         }

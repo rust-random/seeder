@@ -1,5 +1,5 @@
 //! Test tool
-//! 
+//!
 //! Can be used with practrand like so, where `HASHABLES` is optional input:
 //! ```
 //! cargo run --release --example seedrng -- -s HASHABLES | practrand stdin64
@@ -7,8 +7,8 @@
 
 extern crate rand_seeder;
 
-use rand_seeder::SipHasher;
 use rand_seeder::rand_core::RngCore;
+use rand_seeder::SipHasher;
 
 use std::env;
 use std::hash::Hasher;
@@ -21,7 +21,9 @@ fn print_usage() {
     println!("");
     println!("Options:");
     println!("\t-h\tPrint this text");
-    println!("\t-s\tOutput a continuous stream, suitable for use with Practrand (use stdin64 option)");
+    println!(
+        "\t-s\tOutput a continuous stream, suitable for use with Practrand (use stdin64 option)"
+    );
 }
 
 enum Output {
@@ -32,7 +34,7 @@ enum Output {
 fn main() {
     let mut output = Output::Single;
     let mut hasher = SipHasher::new();
-    
+
     for arg in env::args().skip(1) {
         if arg.starts_with("-") {
             match arg.as_str() {
@@ -47,7 +49,7 @@ fn main() {
             hasher.write(arg.as_bytes());
         }
     }
-    
+
     let mut rng = hasher.into_rng();
     match output {
         Output::Single => {
@@ -57,7 +59,7 @@ fn main() {
             let stdout = io::stdout();
             let mut handle = stdout.lock();
             let mut buf = [0u8; 32];
-            
+
             loop {
                 rng.fill_bytes(&mut buf);
                 handle.write_all(&buf).unwrap();
