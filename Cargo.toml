@@ -14,4 +14,4 @@ keywords = ["random", "rng", "seeder"]
 categories = ["algorithms", "no-std"]
 
 [dependencies]
-rand_core = { version = ">= 0.1, <= 0.6", default-features = false }
+rand_core = { version = "0.6", default-features = false }
