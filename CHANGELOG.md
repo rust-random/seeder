@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.3.0] - 2024-07-31
 
 * Update `rand_core` dependency to exactly `0.6`, dropping support for `rand_core <= 0.5`. This
   works around Cargo issues where unrelated updates can cause the `rand_core` dependency to "snap
