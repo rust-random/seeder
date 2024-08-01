@@ -1,6 +1,6 @@
 [package]
 name = "rand_seeder"
-version = "0.2.3" # NB: When modifying, also modify html_root_url in lib.rs
+version = "0.3.0" # NB: When modifying, also modify html_root_url in lib.rs
 authors = ["The Rand Project Developers"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
@@ -14,4 +14,4 @@ keywords = ["random", "rng", "seeder"]
 categories = ["algorithms", "no-std"]
 
 [dependencies]
-rand_core = { version = ">= 0.1, <= 0.6", default-features = false }
+rand_core = { version = "0.6", default-features = false }
