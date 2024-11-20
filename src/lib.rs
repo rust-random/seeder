@@ -27,7 +27,7 @@
 //! use rand_seeder::SipRng; // or any RNG supporting SeedableRng
 //! use rand_seeder::Seeder;
 //!
-//! let mut rng: SipRng = Seeder::from("stripy zebra").make_rng();
+//! let mut rng: SipRng = Seeder::from("stripy zebra").into_rng();
 //! println!("A deterministic pseudo-random value: {}", rng.next_u32());
 //! ```
 //!
@@ -73,7 +73,7 @@ use rand_core::{RngCore, SeedableRng};
 /// use rand_seeder::{Seeder, SipRng};
 ///
 /// // Use any R: SeedableRng you like in place of SipRng:
-/// let mut rng: SipRng = Seeder::from("stripy zebra").make_rng();
+/// let mut rng: SipRng = Seeder::from("stripy zebra").into_rng();
 /// println!("First value: {}", rng.next_u32());
 /// ```
 ///
@@ -93,7 +93,7 @@ impl Seeder {
     /// Alternatively, one can obtain a [`SipRng`] via
     /// `SipHasher::from(h).into_rng()`.
     #[inline]
-    pub fn make_rng<R: SeedableRng>(&mut self) -> R {
+    pub fn into_rng<R: SeedableRng>(&mut self) -> R {
         R::from_seed(self.make_seed())
     }
 
@@ -131,9 +131,9 @@ mod test {
     }
 
     #[test]
-    fn make_rng() {
+    fn into_rng() {
         let mut seeder = Seeder::from("test string");
-        let mut rng = seeder.make_rng::<SipRng>();
+        let mut rng = seeder.into_rng::<SipRng>();
         assert_eq!(rng.next_u64(), 7267854722795183454);
         assert_eq!(rng.next_u64(), 602994585684902144);
     }

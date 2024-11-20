@@ -34,7 +34,7 @@ use rand_core::RngCore;         // for next_u32
 use rand_pcg::Pcg64;            // or whatever you like
 use rand_seeder::Seeder;
 
-let mut rng: Pcg64 = Seeder::from("stripy zebra").make_rng();
+let mut rng: Pcg64 = Seeder::from("stripy zebra").into_rng();
 println!("First value: {}", rng.next_u32());
 ```
 
