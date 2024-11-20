@@ -12,14 +12,6 @@
 //!
 //! This crate is designed for use with the [rand] crates, allowing any RNG
 //! supporting [`SeedableRng`] to be seeded from any hashable value.
-//! It provides the following:
-//!
-//! -   [`SipHasher`], a portable implementation of the SipHash 2-4 hash function.
-//!     According to the authors, [SipHash] is a secure, fast and simple keyed
-//!     hash function.
-//! -   [`SipRng`], a generator based on the SipHash state and mixing operations.
-//!     It is statistically high-quality, passing practrand tests to at least 4 TiB.
-//! -   A universal [`Seeder`] as a convenience wrapper around the above.
 //!
 //! Seeding is designed to be fast, robust, flexible and portable. This library
 //! is intended for use in simulations and games, allowing e.g. any keyword to
@@ -27,6 +19,17 @@
 //!
 //! This library is not intended for cryptographic applications, and *definitely*
 //! not for password hashing.
+//!
+//! # Example
+//!
+//! ```
+//! use rand_seeder::rand_core::RngCore;
+//! use rand_seeder::SipRng; // or any RNG supporting SeedableRng
+//! use rand_seeder::Seeder;
+//!
+//! let mut rng: SipRng = Seeder::from("stripy zebra").make_rng();
+//! println!("A deterministic pseudo-random value: {}", rng.next_u32());
+//! ```
 //!
 //! [rand]: https://github.com/rust-random/rand
 //! [SipHash]: https://131002.net/siphash/
@@ -51,7 +54,7 @@ pub use sip::{SipHasher, SipRng};
 use core::hash::Hash;
 use rand_core::{RngCore, SeedableRng};
 
-/// A universal seeder.
+/// A simple interface for universal seeding
 ///
 /// `Seeder` can be used to seed any [`SeedableRng`] from any hashable value. It
 /// is portable and reproducible, and should turn any input into a good RNG
@@ -69,7 +72,7 @@ use rand_core::{RngCore, SeedableRng};
 /// use rand_core::RngCore;
 /// use rand_seeder::{Seeder, SipRng};
 ///
-/// // Use any SeedableRng you like in place of SipRng:
+/// // Use any R: SeedableRng you like in place of SipRng:
 /// let mut rng: SipRng = Seeder::from("stripy zebra").make_rng();
 /// println!("First value: {}", rng.next_u32());
 /// ```
