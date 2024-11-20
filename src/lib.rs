@@ -32,7 +32,7 @@
 //! ```
 //!
 //! [rand]: https://github.com/rust-random/rand
-//! [SipHash]: https://131002.net/siphash/
+//! [SipHash]: https://en.wikipedia.org/wiki/SipHash
 //! [`SeedableRng`]: rand_core::SeedableRng
 
 #![doc(

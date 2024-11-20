@@ -40,7 +40,7 @@ println!("First value: {}", rng.next_u32());
 
 [Changelog](CHANGELOG.md)
 
-[SipHash]: https://131002.net/siphash/
+[SipHash]: https://en.wikipedia.org/wiki/SipHash
 [rand]: https://github.com/rust-random/rand
 [`rand_core::SeedableRng`]: https://rust-random.github.io/rand/rand_core/trait.SeedableRng.html
 
