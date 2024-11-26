@@ -567,8 +567,8 @@ mod test {
         // for _ in 0..8 {
         //     println!("0x{:x}, 0x{:x},", rng.next_u64(), rng.next_u64());
         // }
-        for i in 0..16 {
-            assert_eq!(rng.next_u64(), vector[i]);
+        for x in &vector {
+            assert_eq!(rng.next_u64(), *x);
         }
 
         // set seed to 0, 1, 2, ..., 31
@@ -595,8 +595,8 @@ mod test {
             0x62cbac703609d15,
             0x74aec28d9fdd44bf,
         ];
-        for i in 0..16 {
-            assert_eq!(rng.next_u64(), vector[i]);
+        for x in &vector {
+            assert_eq!(rng.next_u64(), *x);
         }
     }
 }
