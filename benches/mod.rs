@@ -22,7 +22,7 @@ use rand_seeder::{Seeder, SipRng};
 
 #[bench]
 fn gen_bytes_siprng(b: &mut Bencher) {
-    let mut rng: SipRng = Seeder::from("siprng").make_rng();
+    let mut rng: SipRng = Seeder::from("siprng").into_rng();
     let mut buf = [0u8; BYTES_LEN];
     b.iter(|| {
         for _ in 0..RAND_BENCH_N {
@@ -54,11 +54,11 @@ gen_uint!(
     gen_u32_siprng,
     u32,
     next_u32,
-    Seeder::from("siprng").make_rng()
+    Seeder::from("siprng").into_rng()
 );
 gen_uint!(
     gen_u64_siprng,
     u64,
     next_u64,
-    Seeder::from("siprng").make_rng()
+    Seeder::from("siprng").into_rng()
 );

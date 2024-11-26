@@ -25,9 +25,8 @@ use rand_core::{impls, le, Error, RngCore, SeedableRng};
 /// reference implementation. Additionally, it can be extended into an RNG able
 /// to produce unlimited output via [`SipHasher::into_rng`].
 ///
-/// See: <https://131002.net/siphash/>
-///
-/// SipHash is a general-purpose hashing function: it runs at a good
+/// [SipHash](https://en.wikipedia.org/wiki/SipHash)
+/// is a general-purpose hashing function: it runs at a good
 /// speed (competitive with Spooky and City) and permits strong keyed hashing.
 ///
 /// Although the SipHash algorithm is considered strong, it is not intended for
