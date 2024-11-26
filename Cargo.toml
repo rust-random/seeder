@@ -15,3 +15,6 @@ categories = ["algorithms", "no-std"]
 
 [dependencies]
 rand_core = { version = "0.6", default-features = false }
+
+[lints.clippy]
+unit_arg = "allow"
