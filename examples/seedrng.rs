@@ -40,7 +40,7 @@ fn main() {
             match arg.as_str() {
                 "-h" => return print_usage(),
                 "-s" => output = Output::Stream,
-                o @ _ => {
+                o => {
                     eprintln!("Error: unrecognised option {}", o);
                     return;
                 }

@@ -2,17 +2,42 @@ name: Tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, '0.[0-9]+' ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, '0.[0-9]+' ]
+
+permissions:
+  contents: read #  to fetch code (actions/checkout)
 
 jobs:
+  check-doc:
+    name: Check doc, clippy, fmt
+    runs-on: ubuntu-latest
+    env:
+      RUSTDOCFLAGS: "-Dwarnings --cfg docsrs -Zunstable-options --generate-link-to-definition"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+          components: clippy, rustfmt
+      - name: Doc build
+        run: cargo doc --all-features --no-deps
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: rustfmt
+        run: cargo fmt -- --check
+
   test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            toolchain: stable
           - os: macos-latest
             target: x86_64-apple-darwin
             toolchain: stable
@@ -26,7 +51,8 @@ jobs:
             # Test both windows-gnu and windows-msvc; use beta rust on one
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            toolchain: 1.36.0 # MSRV
+            variant: MSRV
+            toolchain: 1.63.0
           - os: ubuntu-latest
             deps: sudo apt-get update ; sudo apt install gcc-multilib
             target: i686-unknown-linux-gnu
@@ -37,23 +63,23 @@ jobs:
             variant: minimal_versions
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - name: MSRV
+        if: ${{ matrix.variant == 'MSRV' }}
+        run: cp Cargo.lock.msrv Cargo.lock
       - name: Install toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
           target: ${{ matrix.target }}
           toolchain: ${{ matrix.toolchain }}
-          override: true
       - run: ${{ matrix.deps }}
       - name: Maybe minimal versions
         if: ${{ matrix.variant == 'minimal_versions' }}
-        run: cargo generate-lockfile -Z minimal-versions
-      - name: Test nightly
-        if: ${{ matrix.toolchain == 'nightly' }}
-        run: cargo test --target ${{ matrix.target }} --benches
+        run: |
+          cargo generate-lockfile -Z minimal-versions
       - name: Test
-        run: cargo test
+        run: |
+          cargo test --no-fail-fast --target ${{ matrix.target }}
 
   test-cross:
     runs-on: ${{ matrix.os }}
@@ -62,36 +88,58 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            target: mips-unknown-linux-gnu
+            target: powerpc-unknown-linux-gnu
             toolchain: stable
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
           target: ${{ matrix.target }}
           toolchain: ${{ matrix.toolchain }}
-          override: true
       - name: Cache cargo plugins
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.cargo/bin/
           key: ${{ runner.os }}-cargo-plugins
       - name: Install cross
         run: cargo install cross || true
       - name: Test
-        run: cross test --no-fail-fast --target ${{ matrix.target }}
+        run: |
+          cross test --no-fail-fast
 
   test-miri:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install toolchain
         run: |
-          MIRI_NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)
-          rustup default "$MIRI_NIGHTLY"
-          rustup component add miri
-      - name: Test
-        run: cargo miri test
+          rustup toolchain install nightly --component miri
+          rustup override set nightly
+          cargo miri setup
+      - name: Test rand
+        run: |
+          cargo miri test
+
+  test-no-std:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+            target: thumbv6m-none-eabi
+      - name: Build top-level only
+        run: cargo build --target=thumbv6m-none-eabi --no-default-features
+
+  test-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+            target: aarch64-apple-ios
+      - name: Build top-level only
+        run: cargo build --target=aarch64-apple-ios

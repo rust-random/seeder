@@ -126,23 +126,25 @@ macro_rules! load_int_le {
 /// Unsafe because: unchecked indexing at start..start+len
 #[inline]
 unsafe fn u8to64_le(buf: &[u8], start: usize, len: usize) -> u64 {
-    debug_assert!(len < 8);
-    let mut i = 0; // current byte index (from LSB) in the output u64
-    let mut out = 0;
-    if i + 3 < len {
-        out = load_int_le!(buf, start + i, u32) as u64;
-        i += 4;
+    unsafe {
+        debug_assert!(len < 8);
+        let mut i = 0; // current byte index (from LSB) in the output u64
+        let mut out = 0;
+        if i + 3 < len {
+            out = load_int_le!(buf, start + i, u32) as u64;
+            i += 4;
+        }
+        if i + 1 < len {
+            out |= (load_int_le!(buf, start + i, u16) as u64) << (i * 8);
+            i += 2
+        }
+        if i < len {
+            out |= (*buf.as_ptr().add(start + i) as u64) << (i * 8);
+            i += 1;
+        }
+        debug_assert_eq!(i, len);
+        out
     }
-    if i + 1 < len {
-        out |= (load_int_le!(buf, start + i, u16) as u64) << (i * 8);
-        i += 2
-    }
-    if i < len {
-        out |= (*buf.as_ptr().add(start + i) as u64) << (i * 8);
-        i += 1;
-    }
-    debug_assert_eq!(i, len);
-    out
 }
 
 impl SipHasher {
@@ -392,7 +394,7 @@ impl<S: Sip> hash::Hasher for Hasher<S> {
 
         if self.ntail != 0 {
             needed = 8 - self.ntail;
-            self.tail |= unsafe { u8to64_le(msg, 0, cmp::min(length, needed)) } << 8 * self.ntail;
+            self.tail |= unsafe { u8to64_le(msg, 0, cmp::min(length, needed)) } << (8 * self.ntail);
             if length < needed {
                 self.ntail += length;
                 return;
@@ -565,8 +567,8 @@ mod test {
         // for _ in 0..8 {
         //     println!("0x{:x}, 0x{:x},", rng.next_u64(), rng.next_u64());
         // }
-        for i in 0..16 {
-            assert_eq!(rng.next_u64(), vector[i]);
+        for x in &vector {
+            assert_eq!(rng.next_u64(), *x);
         }
 
         // set seed to 0, 1, 2, ..., 31
@@ -593,8 +595,8 @@ mod test {
             0x62cbac703609d15,
             0x74aec28d9fdd44bf,
         ];
-        for i in 0..16 {
-            assert_eq!(rng.next_u64(), vector[i]);
+        for x in &vector {
+            assert_eq!(rng.next_u64(), *x);
         }
     }
 }
