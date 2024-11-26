@@ -126,23 +126,25 @@ macro_rules! load_int_le {
 /// Unsafe because: unchecked indexing at start..start+len
 #[inline]
 unsafe fn u8to64_le(buf: &[u8], start: usize, len: usize) -> u64 {
-    debug_assert!(len < 8);
-    let mut i = 0; // current byte index (from LSB) in the output u64
-    let mut out = 0;
-    if i + 3 < len {
-        out = load_int_le!(buf, start + i, u32) as u64;
-        i += 4;
+    unsafe {
+        debug_assert!(len < 8);
+        let mut i = 0; // current byte index (from LSB) in the output u64
+        let mut out = 0;
+        if i + 3 < len {
+            out = load_int_le!(buf, start + i, u32) as u64;
+            i += 4;
+        }
+        if i + 1 < len {
+            out |= (load_int_le!(buf, start + i, u16) as u64) << (i * 8);
+            i += 2
+        }
+        if i < len {
+            out |= (*buf.as_ptr().add(start + i) as u64) << (i * 8);
+            i += 1;
+        }
+        debug_assert_eq!(i, len);
+        out
     }
-    if i + 1 < len {
-        out |= (load_int_le!(buf, start + i, u16) as u64) << (i * 8);
-        i += 2
-    }
-    if i < len {
-        out |= (*buf.as_ptr().add(start + i) as u64) << (i * 8);
-        i += 1;
-    }
-    debug_assert_eq!(i, len);
-    out
 }
 
 impl SipHasher {
