@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   check-doc:
-    name: Check doc
+    name: Check doc, clippy, fmt
     runs-on: ubuntu-latest
     env:
       RUSTDOCFLAGS: "-Dwarnings --cfg docsrs -Zunstable-options --generate-link-to-definition"
@@ -21,8 +21,13 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
-      - name: rand_seeder
+          components: clippy, rustfmt
+      - name: Doc build
         run: cargo doc --all-features --no-deps
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: rustfmt
+        run: cargo fmt -- --check
 
   test:
     runs-on: ${{ matrix.os }}
