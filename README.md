@@ -3,7 +3,6 @@
 [![Build Status](https://travis-ci.org/rust-random/seeder.svg)](https://travis-ci.org/rust-random/seeder)
 [![Latest version](https://img.shields.io/crates/v/rand_seeder.svg)](https://crates.io/crates/rand_seeder)
 [![Documentation](https://docs.rs/rand_seeder/badge.svg)](https://docs.rs/rand_seeder)
-[![Minimum rustc version](https://img.shields.io/badge/rustc-1.32+-yellow.svg)](https://github.com/rust-random/seeder#rust-version-requirements)
 [![License](https://img.shields.io/crates/l/rand_seeder.svg)](https://github.com/rust-random/seeder#license)
 
 A universal seeder based on [SipHash].
@@ -43,11 +42,6 @@ println!("First value: {}", rng.next_u32());
 [SipHash]: https://en.wikipedia.org/wiki/SipHash
 [rand]: https://github.com/rust-random/rand
 [`rand_core::SeedableRng`]: https://rust-random.github.io/rand/rand_core/trait.SeedableRng.html
-
-## Rust version requirements
-
-Requires rustc 1.32 or greater for the `.to_le_bytes()` method and for
-`rand_core` 0.5 compatibility.
 
 # License
 
