@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Rename `Seeder::make_rng` → `Seeder::into_rng`
 
+## [0.4.0] - 2025-01-27
+
+- Update to `rand_core` v0.9
+
 ## [0.3.0] - 2024-07-31
 
 * Update `rand_core` dependency to exactly `0.6`, dropping support for `rand_core <= 0.5`. This
