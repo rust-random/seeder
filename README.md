@@ -1,6 +1,6 @@
 # rand_seeder
 
-[![Build Status](https://travis-ci.org/rust-random/seeder.svg)](https://travis-ci.org/rust-random/seeder)
+[![Build Status](https://github.com/rust-random/seeder/actions/workflows/test.yml/badge.svg)](https://github.com/rust-random/seeder/actions)
 [![Latest version](https://img.shields.io/crates/v/rand_seeder.svg)](https://crates.io/crates/rand_seeder)
 [![Documentation](https://docs.rs/rand_seeder/badge.svg)](https://docs.rs/rand_seeder)
 [![License](https://img.shields.io/crates/l/rand_seeder.svg)](https://github.com/rust-random/seeder#license)
