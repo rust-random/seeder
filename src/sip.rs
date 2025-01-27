@@ -17,7 +17,7 @@
 
 use core::marker::PhantomData;
 use core::{cmp, hash, mem, ptr, slice};
-use rand_core::{impls, le, Error, RngCore, SeedableRng};
+use rand_core::{impls, le, RngCore, SeedableRng};
 
 /// A portable implementation of SipHash 2-4.
 ///
@@ -198,10 +198,6 @@ impl RngCore for SipRng {
 
     fn fill_bytes(&mut self, dest: &mut [u8]) {
         impls::fill_bytes_via_next(self, dest)
-    }
-
-    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), Error> {
-        Ok(self.fill_bytes(dest))
     }
 }
 
