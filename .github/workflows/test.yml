@@ -18,7 +18,7 @@ jobs:
     env:
       RUSTDOCFLAGS: "-Dwarnings --cfg docsrs -Zunstable-options --generate-link-to-definition"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
@@ -65,7 +65,7 @@ jobs:
             variant: minimal_versions
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: MSRV
         if: ${{ matrix.variant == 'MSRV' }}
         run: cp Cargo.lock.msrv Cargo.lock
@@ -94,7 +94,7 @@ jobs:
             toolchain: stable
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
@@ -114,7 +114,7 @@ jobs:
   test-miri:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install toolchain
         run: |
           rustup toolchain install nightly --component miri
@@ -127,7 +127,7 @@ jobs:
   test-no-std:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@nightly
         with:
@@ -138,7 +138,7 @@ jobs:
   test-ios:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@nightly
         with:
