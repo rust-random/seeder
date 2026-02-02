@@ -17,7 +17,7 @@
 
 use core::marker::PhantomData;
 use core::{cmp, hash, mem, ptr, slice};
-use rand_core::{impls, le, RngCore, SeedableRng};
+use rand_core::{utils, Infallible, Rng, SeedableRng, TryRng};
 
 /// A portable implementation of SipHash 2-4.
 ///
@@ -181,23 +181,25 @@ impl SipRng {
     }
 }
 
-impl RngCore for SipRng {
-    fn next_u32(&mut self) -> u32 {
+impl TryRng for SipRng {
+    type Error = Infallible;
+
+    fn try_next_u32(&mut self) -> Result<u32, Infallible> {
         // Lazy way to implement. Good enough for seeding RNGs.
-        self.next_u64() as u32
+        Ok(self.next_u64() as u32)
     }
 
-    fn next_u64(&mut self) -> u64 {
+    fn try_next_u64(&mut self) -> Result<u64, Infallible> {
         self.state.v2 ^= self.adj;
         self.adj = self.adj.wrapping_sub(0x11);
 
         Sip24Rounds::c_rounds(&mut self.state);
 
-        self.state.v0 ^ self.state.v1 ^ self.state.v2 ^ self.state.v3
+        Ok(self.state.v0 ^ self.state.v1 ^ self.state.v2 ^ self.state.v3)
     }
 
-    fn fill_bytes(&mut self, dest: &mut [u8]) {
-        impls::fill_bytes_via_next(self, dest)
+    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), Infallible> {
+        utils::fill_bytes_via_next_word(dest, || self.try_next_u64())
     }
 }
 
@@ -205,8 +207,7 @@ impl SeedableRng for SipRng {
     type Seed = [u8; 32];
 
     fn from_seed(seed: Self::Seed) -> Self {
-        let mut keys = [0u64; 4];
-        le::read_u64_into(&seed, &mut keys);
+        let keys: [u64; 4] = utils::read_words(&seed);
         SipRng::from_state(State {
             v0: keys[0],
             v1: keys[1],
