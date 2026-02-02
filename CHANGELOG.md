@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.0] - 2026-02-02
 
+- Bump MSRV to 1.85.0 (#22)
 - Update to `rand_core` v0.10 (#22)
 
 ## [0.4.0] - 2025-01-27

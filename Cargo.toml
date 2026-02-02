@@ -12,8 +12,8 @@ A universal random number seeder based on SipHash.
 """
 keywords = ["random", "rng", "seeder"]
 categories = ["algorithms", "no-std"]
-edition = "2021"
-rust-version = "1.63"
+edition = "2024"
+rust-version = "1.85.0"
 
 [dependencies]
 rand_core = { version = "0.10.0", default-features = false }

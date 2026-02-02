@@ -17,7 +17,7 @@
 
 use core::marker::PhantomData;
 use core::{cmp, hash, mem, ptr, slice};
-use rand_core::{utils, Infallible, Rng, SeedableRng, TryRng};
+use rand_core::{Infallible, Rng, SeedableRng, TryRng, utils};
 
 /// A portable implementation of SipHash 2-4.
 ///
@@ -82,9 +82,7 @@ struct State {
 }
 
 macro_rules! compress {
-    ($state:expr) => {{
-        compress!($state.v0, $state.v1, $state.v2, $state.v3)
-    }};
+    ($state:expr) => {{ compress!($state.v0, $state.v1, $state.v2, $state.v3) }};
     ($v0:expr, $v1:expr, $v2:expr, $v3:expr) => {{
         $v0 = $v0.wrapping_add($v1);
         $v1 = $v1.rotate_left(13);
