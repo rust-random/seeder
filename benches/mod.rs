@@ -15,9 +15,9 @@ const RAND_BENCH_N: u64 = 1000;
 const BYTES_LEN: usize = 1024;
 
 use std::mem::size_of;
-use test::{black_box, Bencher};
+use test::{Bencher, black_box};
 
-use rand_seeder::rand_core::RngCore;
+use rand_seeder::rand_core::Rng;
 use rand_seeder::{Seeder, SipRng};
 
 #[bench]

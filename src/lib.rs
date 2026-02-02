@@ -23,7 +23,7 @@
 //! # Example
 //!
 //! ```
-//! use rand_seeder::rand_core::RngCore;
+//! use rand_seeder::rand_core::Rng;
 //! use rand_seeder::SipRng; // or any RNG supporting SeedableRng
 //! use rand_seeder::Seeder;
 //!
@@ -38,7 +38,7 @@
 #![doc(
     html_logo_url = "https://www.rust-lang.org/logos/rust-logo-128x128-blk.png",
     html_favicon_url = "https://www.rust-lang.org/favicon.ico",
-    html_root_url = "https://docs.rs/rand_seeder/0.4.0"
+    html_root_url = "https://docs.rs/rand_seeder/0.5.0"
 )]
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
@@ -52,7 +52,7 @@ mod sip;
 pub use sip::{SipHasher, SipRng};
 
 use core::hash::Hash;
-use rand_core::{RngCore, SeedableRng};
+use rand_core::{Rng, SeedableRng};
 
 /// A simple interface for universal seeding
 ///
@@ -69,7 +69,7 @@ use rand_core::{RngCore, SeedableRng};
 /// ```rust
 /// # extern crate rand_core;
 /// # extern crate rand_seeder;
-/// use rand_core::RngCore;
+/// use rand_core::Rng;
 /// use rand_seeder::{Seeder, SipRng};
 ///
 /// // Use any R: SeedableRng you like in place of SipRng:

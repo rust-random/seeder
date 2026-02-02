@@ -7,8 +7,8 @@
 
 extern crate rand_seeder;
 
-use rand_seeder::rand_core::RngCore;
 use rand_seeder::SipHasher;
+use rand_seeder::rand_core::Rng;
 
 use std::env;
 use std::hash::Hasher;
